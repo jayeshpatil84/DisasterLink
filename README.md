@@ -212,26 +212,6 @@ DisasterLink/
         └── store/           # useDisasterStore.js (Zustand)
 ```
 
----
-
-## 🎯 Design Decisions (For Interviews)
-
-### 1. Why Redis Pub/Sub instead of Kafka?
-Kafka requires ZooKeeper + broker cluster config — complex for a solo prototype. Redis Pub/Sub is a drop-in for low-volume use. **The interface is identical** — upgrading to Kafka needs zero business logic changes.
-
-### 2. Why Gemini directly instead of LangChain?
-LangChain adds 200+ MB dependency and abstraction layers that complicate debugging. Gemini's REST API is clean and the prompt engineering is simpler to explain in interviews.
-
-### 3. Why Zustand over Redux?
-Redux requires actions/reducers/selectors boilerplate. Zustand is 1KB and works identically. Easier to maintain, easier to demo.
-
-### 4. Why Haversine for distance?
-PostGIS or geospatial indexing would be overkill for a prototype. Haversine is mathematically correct (great-circle distance), fast in Java, and demonstrates algorithm knowledge in interviews.
-
-### 5. Rule-based fallback triage
-If Gemini API is down (disaster = network outage), a rule-based triage runs instead. **Shows resilience thinking** — interviewers love this.
-
----
 
 ## 📊 Gap Analysis vs Existing Solutions
 
