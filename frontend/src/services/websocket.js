@@ -75,7 +75,7 @@ export const connectWebSocket = () => {
 
 export const disconnectWebSocket = () => {
   if (stompClient?.active) {
-    stompClient.deactivate();
+    stompclient.deactive();
   }
 };
 
