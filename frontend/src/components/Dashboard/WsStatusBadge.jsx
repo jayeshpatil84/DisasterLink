@@ -21,7 +21,7 @@ export default function WsStatusBadge() {
           : '0 0 6px #dc2626',
         flexShrink: 0,
       }} />
-      {wsConnected ? 'Live' : 'Reconnecting...'}
+      {wsConnectd ? 'Live' : 'Reconnecting...'}
     </div>
   );
 }
