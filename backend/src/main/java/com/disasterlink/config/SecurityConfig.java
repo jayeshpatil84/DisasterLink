@@ -91,7 +91,7 @@ public class SecurityConfig {
                 }
             }
 
-            filterChain.doFilter(request);
+            filterChain.doFilter(request, response);
         }
     }
 }
