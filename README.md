@@ -1,4 +1,4 @@
-# DisasterLink — College Mini Project
+# DisasterLink 
 
 A simple disaster reporting and tracking system built as a college mini project.
 Users can register, log in, report disasters, view all reports, update a
@@ -127,11 +127,4 @@ at `http://localhost:8080/api` (configured in `src/environments/environment.ts`)
 See `disasterlink-backend/API_DOCUMENTATION.md` for the full list of REST
 endpoints, request/response bodies, and error formats.
 
-## Notes
 
-- This project intentionally avoids Docker, Kubernetes, microservices,
-  message queues, and other production infrastructure — it is meant to be
-  simple and easy to understand for a college mini project.
-- JWT secret and DB credentials in `application.properties` are for local
-  development only; in a real deployment these would come from environment
-  variables.
