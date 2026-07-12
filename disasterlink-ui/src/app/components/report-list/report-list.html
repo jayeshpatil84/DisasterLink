@@ -1,0 +1,45 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">Disaster Reports</h2>
+  <a routerLink="/reports/new" class="btn btn-primary">+ Report Disaster</a>
+</div>
+
+<div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+<div *ngIf="isLoading" class="text-muted">Loading reports...</div>
+<div *ngIf="!isLoading && reports.length === 0" class="text-muted">No disaster reports found.</div>
+
+<div class="table-responsive" *ngIf="!isLoading && reports.length > 0">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Type</th>
+        <th>Location</th>
+        <th>Reported By</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let report of reports">
+        <td>{{ report.title }}</td>
+        <td>{{ report.disasterType }}</td>
+        <td>{{ report.location }}</td>
+        <td>{{ report.reportedByUsername }}</td>
+        <td>
+          <span class="badge {{ statusBadgeClass(report.status) }}">{{ report.status }}</span>
+        </td>
+        <td>
+          <select class="form-select form-select-sm d-inline-block w-auto me-2"
+                  [value]="report.status"
+                  (change)="onStatusChange(report, $any($event.target).value)">
+            <option value="PENDING">PENDING</option>
+            <option value="IN_PROGRESS">IN_PROGRESS</option>
+            <option value="RESOLVED">RESOLVED</option>
+          </select>
+          <a class="btn btn-sm btn-outline-secondary me-1" [routerLink]="['/reports/edit', report.id]">Edit</a>
+          <button class="btn btn-sm btn-outline-danger" (click)="onDelete(report)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

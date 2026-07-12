@@ -1,0 +1,52 @@
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card shadow-sm mt-3">
+      <div class="card-body">
+        <h3 class="card-title mb-4">{{ isEditMode ? 'Edit Disaster Report' : 'Report a Disaster' }}</h3>
+
+        <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" class="form-control" formControlName="title"
+                   [class.is-invalid]="f['title'].invalid && f['title'].touched" />
+            <div class="invalid-feedback" *ngIf="f['title'].invalid && f['title'].touched">
+              Title is required (max 100 characters).
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Disaster Type</label>
+            <select class="form-select" formControlName="disasterType">
+              <option *ngFor="let type of disasterTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-control" formControlName="location"
+                   [class.is-invalid]="f['location'].invalid && f['location'].touched" />
+            <div class="invalid-feedback" *ngIf="f['location'].invalid && f['location'].touched">
+              Location is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="4" formControlName="description"
+                      [class.is-invalid]="f['description'].invalid && f['description'].touched"></textarea>
+            <div class="invalid-feedback" *ngIf="f['description'].invalid && f['description'].touched">
+              Description is required (max 1000 characters).
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Report' : 'Submit Report') }}
+          </button>
+          <a routerLink="/reports" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

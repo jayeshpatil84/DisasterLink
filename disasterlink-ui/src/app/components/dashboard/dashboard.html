@@ -1,0 +1,44 @@
+<h2 class="mb-4">Dashboard</h2>
+
+<div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+<div *ngIf="isLoading" class="text-muted">Loading statistics...</div>
+
+<div class="row g-3" *ngIf="!isLoading">
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-white bg-primary shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title">Total Reports</h6>
+        <p class="card-text fs-2 mb-0">{{ stats.totalReports }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-white bg-warning shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title">Pending</h6>
+        <p class="card-text fs-2 mb-0">{{ stats.pendingReports }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-white bg-info shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title">In Progress</h6>
+        <p class="card-text fs-2 mb-0">{{ stats.inProgressReports }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-white bg-success shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title">Resolved</h6>
+        <p class="card-text fs-2 mb-0">{{ stats.resolvedReports }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <a routerLink="/reports" class="btn btn-outline-primary me-2">View All Reports</a>
+  <a routerLink="/reports/new" class="btn btn-primary">Report a Disaster</a>
+</div>

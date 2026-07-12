@@ -1,0 +1,39 @@
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-sm mt-4">
+      <div class="card-body">
+        <h3 class="card-title mb-4 text-center">Login</h3>
+
+        <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" formControlName="username"
+                   [class.is-invalid]="f['username'].invalid && f['username'].touched" />
+            <div class="invalid-feedback" *ngIf="f['username'].invalid && f['username'].touched">
+              Username is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" formControlName="password"
+                   [class.is-invalid]="f['password'].invalid && f['password'].touched" />
+            <div class="invalid-feedback" *ngIf="f['password'].invalid && f['password'].touched">
+              Password is required.
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Logging in...' : 'Login' }}
+          </button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+          Don't have an account? <a routerLink="/register">Register here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
