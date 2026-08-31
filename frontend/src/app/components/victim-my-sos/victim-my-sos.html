@@ -1,0 +1,157 @@
+<div class="container-fluid px-4 py-3">
+  <!-- Page Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-shield-exclamation text-danger"></i> My Emergency SOS Requests
+      </h3>
+      <p class="text-muted small mb-0">
+        Live Status & Volunteer Assignment Tracking
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <a routerLink="/reports/new" class="btn btn-danger rounded-pill fw-bold btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Submit New SOS
+      </a>
+      <button class="btn btn-outline-secondary btn-sm rounded-pill" (click)="loadMySos()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Banner -->
+  <div *ngIf="notificationMessage" class="alert alert-info alert-dismissible fade show" role="alert">
+    <i class="bi bi-bell-fill me-2"></i> {{ notificationMessage }}
+    <button type="button" class="btn-close" (click)="notificationMessage = null"></button>
+  </div>
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <!-- SOS List -->
+  <div class="glass-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark-subtle pb-2">
+      <h5 class="fw-bold text-white mb-0">Submitted Incidents</h5>
+      <span class="badge bg-secondary rounded-pill">{{ myBeacons.length }} Total</span>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mt-2 small">Loading your emergency requests...</p>
+    </div>
+
+    <div *ngIf="!loading && myBeacons.length === 0" class="text-center py-5 text-muted">
+      <i class="bi bi-shield-check fs-1 text-success d-block mb-2"></i>
+      <h5>No active SOS requests</h5>
+      <p class="small">If you require emergency disaster assistance, click the button above to broadcast an SOS beacon.</p>
+    </div>
+
+    <div class="row g-3" *ngIf="!loading && myBeacons.length > 0">
+      <div class="col-12 col-lg-6" *ngFor="let beacon of myBeacons">
+        <div
+          class="card h-100 incident-card border"
+          [class.border-danger]="beacon.urgencyLabel === 'CRITICAL'"
+          [class.border-warning]="beacon.urgencyLabel === 'HIGH'"
+          [class.border-success]="beacon.status === 'RESOLVED'"
+        >
+          <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-secondary-subtle">
+            <span class="fw-bold text-light fs-6">
+              {{ disasterEmoji[beacon.disasterType] }} {{ beacon.disasterType }} #{{ beacon.id }}
+            </span>
+            <span class="badge-urgency {{ urgencyClass[beacon.urgencyLabel] }}">
+              {{ urgencyEmoji[beacon.urgencyLabel] }} {{ beacon.urgencyLabel }} (Score: {{ beacon.urgencyScore }})
+            </span>
+          </div>
+
+          <div class="card-body">
+            <p class="card-text text-light mb-3">{{ beacon.description }}</p>
+
+            <div class="row g-2 mb-3 text-muted small">
+              <div class="col-12 col-md-6">
+                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                <strong>Location:</strong> {{ beacon.address || (beacon.latitude + ', ' + beacon.longitude) }}
+              </div>
+              <div class="col-12 col-md-6">
+                <i class="bi bi-clock me-1"></i>
+                <strong>Submitted:</strong> {{ beacon.createdAt | date: 'medium' }}
+              </div>
+            </div>
+
+            <!-- Assigned Volunteer & Current Status -->
+            <div class="p-2 rounded mb-3 bg-dark bg-opacity-50 border border-secondary-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div>
+                <span class="text-muted small d-block">Assigned Volunteer:</span>
+                <span class="fw-bold" [class.text-success]="beacon.volunteerUsername" [class.text-warning]="!beacon.volunteerUsername">
+                  <i class="bi bi-person-fill me-1"></i>
+                  {{ beacon.volunteerUsername || 'Not yet assigned' }}
+                </span>
+              </div>
+
+              <div>
+                <span class="text-muted small d-block">Incident Status:</span>
+                <span class="badge px-3 py-2 fw-bold" [ngClass]="{
+                  'bg-secondary': beacon.status === 'PENDING',
+                  'bg-info text-dark': beacon.status === 'ASSIGNED',
+                  'bg-primary': beacon.status === 'EN_ROUTE',
+                  'bg-warning text-dark': beacon.status === 'ARRIVED',
+                  'bg-danger': beacon.status === 'IN_PROGRESS',
+                  'bg-success': beacon.status === 'RESOLVED'
+                }">
+                  {{ beacon.status }}
+                </span>
+              </div>
+            </div>
+
+            <div *ngIf="beacon.triageNote" class="mb-3 p-2 rounded bg-info bg-opacity-10 border border-info-subtle small text-info">
+              <i class="bi bi-cpu me-1"></i> <strong>AI Triage Note:</strong> {{ beacon.triageNote }}
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-outline-info btn-sm rounded-pill" (click)="viewTimeline(beacon)">
+                <i class="bi bi-clock-history me-1"></i> View Progress Timeline
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Modal / Card -->
+  <div *ngIf="selectedBeaconId" class="glass-card p-4 border border-info">
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark-subtle pb-2">
+      <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-clock-history text-info"></i> Progress Timeline for SOS #{{ selectedBeaconId }}
+      </h5>
+      <button class="btn btn-sm btn-outline-light rounded-pill" (click)="closeTimeline()">
+        <i class="bi bi-x-lg"></i> Close
+      </button>
+    </div>
+
+    <div *ngIf="loadingTimeline" class="text-center py-4">
+      <div class="spinner-border spinner-border-sm text-info"></div>
+      <span class="text-muted ms-2 small">Loading timeline...</span>
+    </div>
+
+    <div *ngIf="!loadingTimeline && selectedBeaconTimeline.length === 0" class="text-muted py-3">
+      No history events recorded yet for this SOS.
+    </div>
+
+    <div *ngIf="!loadingTimeline && selectedBeaconTimeline.length > 0" class="timeline-container ps-3 py-2">
+      <div *ngFor="let item of selectedBeaconTimeline" class="timeline-item position-relative mb-3 ps-4">
+        <div class="timeline-dot bg-info"></div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-bold text-light">
+            {{ item.oldStatus ? item.oldStatus + ' → ' : '' }}{{ item.newStatus }}
+          </span>
+          <span class="text-muted small">{{ item.changedAt | date: 'shortTime' }}</span>
+        </div>
+        <div class="text-muted small">Updated by: {{ item.changedBy }}</div>
+      </div>
+    </div>
+  </div>
+</div>

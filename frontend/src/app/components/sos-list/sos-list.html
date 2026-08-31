@@ -1,0 +1,222 @@
+<div class="container py-4">
+  <!-- Title & Controls Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold mb-1 text-white d-flex align-items-center gap-2">
+        <i class="bi bi-list-stars text-info"></i> Active Emergency Incidents
+      </h3>
+      <p class="text-muted small mb-0">
+        Review, assign volunteers, and track the status of reported disaster beacons
+      </p>
+    </div>
+
+    <a routerLink="/reports/new" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">
+      <i class="bi bi-plus-circle me-1"></i> Submit SOS
+    </a>
+  </div>
+
+  <!-- Filter Pills -->
+  <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
+    <button
+      class="btn btn-sm rounded-pill px-3"
+      [class.btn-primary]="activeFilter === 'ALL'"
+      [class.btn-outline-secondary]="activeFilter !== 'ALL'"
+      (click)="applyFilter('ALL')"
+    >
+      All Incidents ({{ beacons.length }})
+    </button>
+
+    <button
+      class="btn btn-sm rounded-pill px-3"
+      [class.btn-warning]="activeFilter === 'PENDING'"
+      [class.btn-outline-secondary]="activeFilter !== 'PENDING'"
+      (click)="applyFilter('PENDING')"
+    >
+      Pending
+    </button>
+
+    <button
+      class="btn btn-sm rounded-pill px-3"
+      [class.btn-info]="activeFilter === 'IN_PROGRESS'"
+      [class.btn-outline-secondary]="activeFilter !== 'IN_PROGRESS'"
+      (click)="applyFilter('IN_PROGRESS')"
+    >
+      In Progress
+    </button>
+
+    <button
+      class="btn btn-sm rounded-pill px-3"
+      [class.btn-success]="activeFilter === 'RESOLVED'"
+      [class.btn-outline-secondary]="activeFilter !== 'RESOLVED'"
+      (click)="applyFilter('RESOLVED')"
+    >
+      Resolved
+    </button>
+
+    <button
+      *ngIf="authService.isVolunteer()"
+      class="btn btn-sm rounded-pill px-3"
+      [class.btn-cyan]="activeFilter === 'ASSIGNED_TO_ME'"
+      [class.btn-outline-secondary]="activeFilter !== 'ASSIGNED_TO_ME'"
+      (click)="applyFilter('ASSIGNED_TO_ME')"
+    >
+      Assigned to Me
+    </button>
+
+    <button
+      *ngIf="authService.isVictim()"
+      class="btn btn-sm rounded-pill px-3"
+      [class.btn-outline-info]="activeFilter === 'MY_SOS'"
+      (click)="applyFilter('MY_SOS')"
+    >
+      My Submitted SOS
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Loading emergency beacons...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Empty List State -->
+  <div *ngIf="!loading && filteredBeacons.length === 0" class="glass-card p-5 text-center text-muted">
+    <i class="bi bi-shield-check fs-1 text-success d-block mb-3"></i>
+    <h5>No SOS Beacons Found</h5>
+    <p class="small mb-0">No incidents match your selected filter.</p>
+  </div>
+
+  <!-- Beacons List Cards Grid -->
+  <div class="row g-3" *ngIf="!loading && filteredBeacons.length > 0">
+    <div class="col-12" *ngFor="let beacon of filteredBeacons">
+      <div
+        class="glass-card p-4 transition-all"
+        [class.border-danger-glow]="beacon.urgencyLabel === 'CRITICAL'"
+      >
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge bg-primary text-uppercase" style="font-size: 0.8rem;">
+                {{ disasterEmoji[beacon.disasterType] }} {{ beacon.disasterType }}
+              </span>
+              <span class="badge-urgency {{ urgencyClass[beacon.urgencyLabel] }}">
+                {{ urgencyEmoji[beacon.urgencyLabel] }} Urgency Score: {{ beacon.urgencyScore }}/100 ({{ beacon.urgencyLabel }})
+              </span>
+            </div>
+            <h5 class="fw-bold text-white mb-0">Beacon #{{ beacon.id }}</h5>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <span
+              class="badge px-3 py-2 text-uppercase"
+              [ngClass]="{
+                'bg-warning text-dark': beacon.status === 'PENDING',
+                'bg-info text-dark': beacon.status === 'IN_PROGRESS',
+                'bg-success': beacon.status === 'RESOLVED',
+                'bg-secondary': beacon.status === 'CANCELLED'
+              }"
+            >
+              {{ beacon.status }}
+            </span>
+          </div>
+        </div>
+
+        <p class="text-light mb-3 fs-6">
+          {{ beacon.description }}
+        </p>
+
+        <!-- Location & Meta info -->
+        <div class="row g-2 text-muted mb-3 small">
+          <div class="col-12 col-md-6">
+            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+            <strong>Location:</strong> {{ beacon.address || 'GPS Coords' }}
+            <span class="ms-1 text-secondary">({{ beacon.latitude | number: '1.4-4' }}, {{ beacon.longitude | number: '1.4-4' }})</span>
+          </div>
+          <div class="col-12 col-md-3">
+            <i class="bi bi-person-fill text-info me-1"></i>
+            <strong>Reporter:</strong> {{ beacon.reporterUsername }}
+          </div>
+          <div class="col-12 col-md-3">
+            <i class="bi bi-clock-history text-warning me-1"></i>
+            <strong>Reported:</strong> {{ beacon.createdAt | date: 'short' }}
+          </div>
+        </div>
+
+        <!-- AI Triage note callout -->
+        <div *ngIf="beacon.triageNote" class="p-2 mb-3 rounded-2 bg-dark border border-secondary-subtle small text-info-subtle d-flex align-items-center gap-2">
+          <i class="bi bi-cpu fs-5 text-info"></i>
+          <div>
+            <strong>AI Triage System:</strong> {{ beacon.triageNote }}
+          </div>
+        </div>
+
+        <!-- Officer & Volunteer Actions Toolbar -->
+        <div class="pt-3 border-top border-dark-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <!-- Volunteer assigned info -->
+          <div>
+            <span *ngIf="beacon.volunteerUsername" class="badge bg-dark border border-success text-success p-2 d-inline-flex align-items-center gap-1">
+              <i class="bi bi-person-check-fill"></i> Assigned Volunteer: <strong>{{ beacon.volunteerUsername }}</strong>
+            </span>
+            <span *ngIf="!beacon.volunteerUsername" class="badge bg-dark border border-secondary text-muted p-2">
+              Unassigned
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Officer: Assign Volunteer Dropdown -->
+            <ng-container *ngIf="authService.isOfficer() && volunteers.length > 0">
+              <div class="input-group input-group-sm" style="width: 240px;">
+                <select class="form-select bg-dark text-light border-secondary" [(ngModel)]="selectedVolunteerMap[beacon.id]">
+                  <option [ngValue]="undefined">Assign Volunteer...</option>
+                  <option *ngFor="let vol of volunteers" [value]="vol.id">
+                    {{ vol.username }}
+                  </option>
+                </select>
+                <button
+                  class="btn btn-outline-primary"
+                  (click)="assignVolunteer(beacon.id)"
+                  [disabled]="!selectedVolunteerMap[beacon.id]"
+                >
+                  Assign
+                </button>
+              </div>
+            </ng-container>
+
+            <!-- Status Transition Buttons (Officer / Volunteer) -->
+            <div *ngIf="authService.isOfficer() || (authService.isVolunteer() && beacon.volunteerUsername === authService.getUsername())">
+              <button
+                *ngIf="beacon.status !== 'IN_PROGRESS'"
+                class="btn btn-outline-info btn-sm rounded-pill px-3 me-1"
+                (click)="updateStatus(beacon.id, 'IN_PROGRESS')"
+              >
+                Set In-Progress
+              </button>
+              <button
+                *ngIf="beacon.status !== 'RESOLVED'"
+                class="btn btn-success btn-sm rounded-pill px-3"
+                (click)="updateStatus(beacon.id, 'RESOLVED')"
+              >
+                Mark Resolved
+              </button>
+            </div>
+
+            <!-- Cancel button for Victim's own SOS -->
+            <button
+              *ngIf="authService.isVictim() && beacon.reporterUsername === authService.getUsername() && beacon.status === 'PENDING'"
+              class="btn btn-outline-danger btn-sm rounded-pill px-3"
+              (click)="cancelSos(beacon.id)"
+            >
+              Cancel SOS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="glass-card p-4">
+        <!-- Header -->
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-dark-subtle">
+          <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+            <i class="bi bi-broadcast fs-3"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold mb-0 text-white">Emergency SOS Submission</h4>
+            <p class="text-muted small mb-0">Geo-tagged emergency beacon with automatic AI triage</p>
+          </div>
+        </div>
+
+        <!-- Alert messages -->
+        <div *ngIf="error" class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>{{ error }}</div>
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success d-flex align-items-center gap-2" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div>{{ successMessage }}</div>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #sosForm="ngForm">
+          <!-- Disaster Type -->
+          <div class="mb-3">
+            <label class="form-label text-light fw-semibold">Disaster Category</label>
+            <select
+              class="form-select bg-dark text-light border-secondary"
+              [(ngModel)]="formData.disasterType"
+              name="disasterType"
+              required
+            >
+              <option *ngFor="let type of disasterTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+          </div>
+
+          <!-- GPS Location Picker Button -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label text-light fw-semibold mb-0">Location Coordinates</label>
+              <button
+                type="button"
+                class="btn btn-outline-info btn-sm rounded-pill d-flex align-items-center gap-1"
+                (click)="getCurrentLocation()"
+                [disabled]="geoLocating"
+              >
+                <i class="bi bi-crosshair" [class.spin]="geoLocating"></i>
+                {{ geoLocating ? 'Detecting GPS...' : 'Use My Current Location' }}
+              </button>
+            </div>
+
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-dark text-muted border-secondary">Lat</span>
+                  <input
+                    type="number"
+                    step="any"
+                    class="form-control bg-dark text-light border-secondary"
+                    [(ngModel)]="formData.latitude"
+                    name="latitude"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-dark text-muted border-secondary">Lng</span>
+                  <input
+                    type="number"
+                    step="any"
+                    class="form-control bg-dark text-light border-secondary"
+                    [(ngModel)]="formData.longitude"
+                    name="longitude"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address / Landmark -->
+          <div class="mb-3">
+            <label class="form-label text-light fw-semibold">Address / Nearby Landmark</label>
+            <input
+              type="text"
+              class="form-control bg-dark text-light border-secondary"
+              placeholder="e.g. Near City Hospital, Main Street"
+              [(ngModel)]="formData.address"
+              name="address"
+            />
+          </div>
+
+          <!-- Emergency Description -->
+          <div class="mb-4">
+            <label class="form-label text-light fw-semibold">Describe the Situation</label>
+            <textarea
+              class="form-control bg-dark text-light border-secondary"
+              rows="4"
+              placeholder="Describe injuries, trapped people, water level, fire severity, or help needed..."
+              [(ngModel)]="formData.description"
+              name="description"
+              required
+            ></textarea>
+            <div class="form-text text-muted" style="font-size: 0.75rem;">
+              <i class="bi bi-cpu me-1 text-info"></i>
+              Google Gemini AI will automatically evaluate urgency (0–100) and alert nearby emergency response teams.
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="d-grid gap-2">
+            <button
+              type="submit"
+              class="btn btn-danger btn-lg rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2"
+              [disabled]="loading || !sosForm.form.valid"
+            >
+              <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status"></span>
+              <i *ngIf="!loading" class="bi bi-send-fill"></i>
+              {{ loading ? 'Analyzing & Transmitting SOS...' : 'BROADCAST SOS EMERGENCY' }}
+            </button>
+            <a routerLink="/dashboard" class="btn btn-outline-secondary btn-sm">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

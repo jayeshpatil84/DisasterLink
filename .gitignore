@@ -1,0 +1,95 @@
+# =============================================================================
+# DisasterLink v2.0 — Root GitIgnore
+# =============================================================================
+
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE & Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.iml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache/
+
+# Environment & Secrets — never commit credentials
+.env
+.env.local
+.env.*.local
+.env.production
+*.pem
+*.key
+*.p12
+*.jks
+secrets/
+
+# Node / Angular
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.angular/
+dist/
+out-tsc/
+tmp/
+coverage/
+.sass-cache/
+connect.lock
+typings/
+.eslintcache
+
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.rar
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Docker
+.docker/
+
+# Logs
+*.log
+logs/
+
+# Testing / coverage
+*.lcov
+htmlcov/
+.nyc_output/
+
+# OS / tooling
+*.bak
+*.tmp
+*.orig
+.cache/

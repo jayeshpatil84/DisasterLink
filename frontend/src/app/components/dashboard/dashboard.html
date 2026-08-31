@@ -1,0 +1,370 @@
+<div class="container-fluid px-4 py-3">
+  <!-- Page Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-broadcast text-danger"></i> Disaster Command & Coordination Center
+      </h3>
+      <p class="text-muted small mb-0">
+        Officer Operational Dashboard — Real-Time Triage, Volunteer Dispatch & Incident Oversight
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-dark border border-secondary px-3 py-2 text-light d-flex align-items-center gap-2">
+        <span class="pulse-indicator"></span> WebSocket Live Sync
+      </span>
+      <button class="btn btn-outline-secondary btn-sm rounded-pill" (click)="loadStats(); loadBeacons(); loadVolunteers()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh All
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Banner -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = null"></button>
+  </div>
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 1 — Statistics Cards -->
+  <!-- ========================================================================= -->
+  <div class="row g-3 mb-4" *ngIf="stats">
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100">
+        <div class="stat-icon text-primary mb-1"><i class="bi bi-beacon fs-4"></i></div>
+        <div class="stat-value text-white fw-extrabold fs-3">{{ stats.totalBeacons }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">Total SOS</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100 border-danger-subtle">
+        <div class="stat-icon text-danger mb-1"><i class="bi bi-exclamation-triangle-fill fs-4"></i></div>
+        <div class="stat-value text-danger fw-extrabold fs-3">{{ stats.criticalBeacons }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">Critical SOS</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100 border-warning-subtle">
+        <div class="stat-icon text-warning mb-1"><i class="bi bi-exclamation-circle-fill fs-4"></i></div>
+        <div class="stat-value text-warning fw-extrabold fs-3">{{ stats.highBeacons }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">High Urgency</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100">
+        <div class="stat-icon text-secondary mb-1"><i class="bi bi-hourglass-split fs-4"></i></div>
+        <div class="stat-value text-white fw-extrabold fs-3">{{ stats.pendingBeacons }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">Pending SOS</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100 border-info-subtle">
+        <div class="stat-icon text-info mb-1"><i class="bi bi-person-check fs-4"></i></div>
+        <div class="stat-value text-info fw-extrabold fs-3">{{ stats.assignedBeacons }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">Assigned SOS</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100 border-warning-subtle">
+        <div class="stat-icon text-warning mb-1"><i class="bi bi-activity fs-4"></i></div>
+        <div class="stat-value text-warning fw-extrabold fs-3">{{ stats.inProgressBeacons }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">In Progress SOS</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100 border-success-subtle">
+        <div class="stat-icon text-success mb-1"><i class="bi bi-check-circle-fill fs-4"></i></div>
+        <div class="stat-value text-success fw-extrabold fs-3">{{ stats.resolvedBeacons }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">Resolved SOS</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100 border-success-subtle">
+        <div class="stat-icon text-success mb-1"><i class="bi bi-person-check-fill fs-4"></i></div>
+        <div class="stat-value text-success fw-extrabold fs-3">{{ stats.availableVolunteers }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">Available Vols</div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg-3 col-xl">
+      <div class="glass-card p-3 text-center h-100 border-warning-subtle">
+        <div class="stat-icon text-warning mb-1"><i class="bi bi-person-fill-gear fs-4"></i></div>
+        <div class="stat-value text-warning fw-extrabold fs-3">{{ stats.busyVolunteers }}</div>
+        <div class="stat-label text-muted small text-uppercase fw-semibold">Busy Vols</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 2 — Live SOS Map -->
+  <!-- ========================================================================= -->
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="glass-card p-3">
+        <div class="d-flex align-items-center justify-content-between mb-3 px-2 flex-wrap gap-2">
+          <h5 class="fw-bold mb-0 text-white d-flex align-items-center gap-2">
+            <i class="bi bi-geo-alt-fill text-danger"></i> Live SOS Incident Map
+          </h5>
+          <div class="d-flex align-items-center gap-2 small">
+            <span class="badge bg-danger"><i class="bi bi-circle-fill me-1"></i> CRITICAL</span>
+            <span class="badge bg-warning text-dark"><i class="bi bi-circle-fill me-1"></i> HIGH</span>
+            <span class="badge bg-warning-subtle text-dark"><i class="bi bi-circle-fill me-1"></i> MEDIUM</span>
+            <span class="badge bg-success"><i class="bi bi-circle-fill me-1"></i> LOW</span>
+          </div>
+        </div>
+
+        <!-- Leaflet Map -->
+        <div id="leaflet-map" class="rounded-3" style="height: 420px; width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 3 — SOS List Table with Filters & Assign/Reassign -->
+  <!-- ========================================================================= -->
+  <div class="glass-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+      <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-table text-info"></i> SOS Incident Queue & Dispatch Management
+      </h5>
+
+      <!-- Filters -->
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <!-- Urgency Filters -->
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn" [ngClass]="urgencyFilter === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'" (click)="setUrgencyFilter('ALL')">All Urgency</button>
+          <button type="button" class="btn" [ngClass]="urgencyFilter === 'CRITICAL' ? 'btn-danger' : 'btn-outline-danger'" (click)="setUrgencyFilter('CRITICAL')">Critical</button>
+          <button type="button" class="btn" [ngClass]="urgencyFilter === 'HIGH' ? 'btn-warning' : 'btn-outline-warning'" (click)="setUrgencyFilter('HIGH')">High</button>
+          <button type="button" class="btn" [ngClass]="urgencyFilter === 'MEDIUM' ? 'btn-info' : 'btn-outline-info'" (click)="setUrgencyFilter('MEDIUM')">Medium</button>
+          <button type="button" class="btn" [ngClass]="urgencyFilter === 'LOW' ? 'btn-success' : 'btn-outline-success'" (click)="setUrgencyFilter('LOW')">Low</button>
+        </div>
+
+        <!-- Status Filters -->
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn" [ngClass]="statusFilter === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'" (click)="setStatusFilter('ALL')">All Status</button>
+          <button type="button" class="btn" [ngClass]="statusFilter === 'PENDING' ? 'btn-secondary' : 'btn-outline-secondary'" (click)="setStatusFilter('PENDING')">Pending</button>
+          <button type="button" class="btn" [ngClass]="statusFilter === 'ASSIGNED' ? 'btn-info' : 'btn-outline-info'" (click)="setStatusFilter('ASSIGNED')">Assigned</button>
+          <button type="button" class="btn" [ngClass]="statusFilter === 'IN_PROGRESS' ? 'btn-warning' : 'btn-outline-warning'" (click)="setStatusFilter('IN_PROGRESS')">In Progress</button>
+          <button type="button" class="btn" [ngClass]="statusFilter === 'RESOLVED' ? 'btn-success' : 'btn-outline-success'" (click)="setStatusFilter('RESOLVED')">Resolved</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0 custom-table">
+        <thead>
+          <tr class="text-secondary small text-uppercase">
+            <th>ID</th>
+            <th>Disaster Type</th>
+            <th>Urgency</th>
+            <th>Status</th>
+            <th>Victim</th>
+            <th>Volunteer</th>
+            <th>Time</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="loading">
+            <td colspan="8" class="text-center py-4 text-muted">
+              <div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading incident queue...
+            </td>
+          </tr>
+          <tr *ngIf="!loading && filteredBeacons.length === 0">
+            <td colspan="8" class="text-center py-4 text-muted">
+              <i class="bi bi-inbox fs-4 d-block mb-1"></i> No SOS incidents match the current filters.
+            </td>
+          </tr>
+          <tr *ngFor="let beacon of filteredBeacons">
+            <td class="fw-bold text-info">#{{ beacon.id }}</td>
+            <td>
+              <span class="d-inline-flex align-items-center gap-1">
+                <span>{{ disasterEmoji[beacon.disasterType] }}</span>
+                <span class="fw-semibold">{{ beacon.disasterType }}</span>
+              </span>
+            </td>
+            <td>
+              <span class="badge-urgency {{ urgencyClass[beacon.urgencyLabel] }}">
+                {{ urgencyEmoji[beacon.urgencyLabel] }} {{ beacon.urgencyLabel }} ({{ beacon.urgencyScore }})
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'bg-secondary': beacon.status === 'PENDING',
+                'bg-info text-dark': beacon.status === 'ASSIGNED',
+                'bg-primary': beacon.status === 'EN_ROUTE',
+                'bg-warning text-dark': beacon.status === 'ARRIVED' || beacon.status === 'IN_PROGRESS',
+                'bg-success': beacon.status === 'RESOLVED',
+                'bg-dark': beacon.status === 'CANCELLED'
+              }">
+                {{ beacon.status }}
+              </span>
+            </td>
+            <td class="small">{{ beacon.reporterUsername }}</td>
+            <td class="small">
+              <span *ngIf="beacon.volunteerUsername" class="text-info fw-semibold">
+                <i class="bi bi-person-fill me-1"></i>{{ beacon.volunteerUsername }}
+              </span>
+              <span *ngIf="!beacon.volunteerUsername" class="text-muted">Unassigned</span>
+            </td>
+            <td class="text-muted small">{{ beacon.createdAt | date: 'short' }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Focus on Map button -->
+                <button class="btn btn-outline-light btn-xs rounded-pill" (click)="focusBeaconOnMap(beacon)" title="Locate on Map">
+                  <i class="bi bi-geo-alt"></i>
+                </button>
+
+                <!-- View History / Timeline button -->
+                <button class="btn btn-outline-info btn-xs rounded-pill" (click)="viewTimeline(beacon)" title="View Timeline">
+                  <i class="bi bi-clock-history"></i> Timeline
+                </button>
+
+                <!-- Assign Form for PENDING SOS -->
+                <div *ngIf="beacon.status === 'PENDING'" class="d-flex align-items-center gap-1">
+                  <select
+                    class="form-select form-select-sm bg-dark text-light border-secondary"
+                    style="width: 140px; font-size: 0.78rem;"
+                    [(ngModel)]="selectedVolunteerId[beacon.id]"
+                  >
+                    <option [ngValue]="undefined" disabled selected>Select Available</option>
+                    <option *ngFor="let vol of availableVolunteers" [ngValue]="vol.id">
+                      {{ vol.username }} ({{ vol.activeTaskCount }} tasks)
+                    </option>
+                  </select>
+                  <button class="btn btn-success btn-xs fw-bold rounded-pill" (click)="assignVolunteer(beacon.id)">
+                    Assign
+                  </button>
+                </div>
+
+                <!-- Reassign Form for ASSIGNED SOS -->
+                <div *ngIf="beacon.status === 'ASSIGNED'" class="d-flex align-items-center gap-1">
+                  <select
+                    class="form-select form-select-sm bg-dark text-light border-secondary"
+                    style="width: 140px; font-size: 0.78rem;"
+                    [(ngModel)]="selectedVolunteerId[beacon.id]"
+                  >
+                    <option [ngValue]="undefined" disabled selected>Select New Vol</option>
+                    <option *ngFor="let vol of availableVolunteers" [ngValue]="vol.id">
+                      {{ vol.username }} ({{ vol.activeTaskCount }} tasks)
+                    </option>
+                  </select>
+                  <button class="btn btn-warning btn-xs fw-bold rounded-pill text-dark" (click)="reassignVolunteer(beacon.id)">
+                    Reassign
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 4 — Volunteer Status Table -->
+  <!-- ========================================================================= -->
+  <div class="glass-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark-subtle pb-2">
+      <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-people-fill text-success"></i> Registered Volunteer Roster & Real-Time Availability
+      </h5>
+      <span class="badge bg-secondary rounded-pill">{{ volunteers.length }} Total Volunteers</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0 custom-table">
+        <thead>
+          <tr class="text-secondary small text-uppercase">
+            <th>Volunteer ID</th>
+            <th>Name</th>
+            <th>Availability Status</th>
+            <th>Active Task Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="loadingVolunteers">
+            <td colspan="4" class="text-center py-3 text-muted">
+              <div class="spinner-border spinner-border-sm text-success me-2"></div> Loading volunteer roster...
+            </td>
+          </tr>
+          <tr *ngIf="!loadingVolunteers && volunteers.length === 0">
+            <td colspan="4" class="text-center py-3 text-muted">
+              No registered volunteers found.
+            </td>
+          </tr>
+          <tr *ngFor="let vol of volunteers">
+            <td class="text-muted">#{{ vol.id }}</td>
+            <td class="fw-bold text-light">
+              <i class="bi bi-person-circle me-2 text-info"></i>{{ vol.username }}
+            </td>
+            <td>
+              <span class="badge px-3 py-2 rounded-pill fw-bold" [ngClass]="{
+                'bg-success': vol.volunteerStatus === 'AVAILABLE',
+                'bg-warning text-dark': vol.volunteerStatus === 'BUSY',
+                'bg-secondary': vol.volunteerStatus === 'OFFLINE'
+              }">
+                <i class="bi bi-circle-fill me-1 small"></i> {{ vol.volunteerStatus || 'AVAILABLE' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-dark border border-secondary px-2 py-1">
+                {{ vol.activeTaskCount }} Active Tasks
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- Timeline / History View Card (When SOS Timeline is clicked) -->
+  <!-- ========================================================================= -->
+  <div *ngIf="selectedTimelineBeaconId" class="glass-card p-4 border border-info mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-dark-subtle pb-2">
+      <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+        <i class="bi bi-clock-history text-info"></i> Audit Trail Timeline for SOS #{{ selectedTimelineBeaconId }}
+      </h5>
+      <button class="btn btn-sm btn-outline-light rounded-pill" (click)="closeTimeline()">
+        <i class="bi bi-x-lg"></i> Close Timeline
+      </button>
+    </div>
+
+    <div *ngIf="loadingTimeline" class="text-center py-4">
+      <div class="spinner-border spinner-border-sm text-info"></div>
+      <span class="text-muted ms-2 small">Loading audit timeline...</span>
+    </div>
+
+    <div *ngIf="!loadingTimeline && selectedTimeline.length === 0" class="text-muted py-3">
+      No status transition history recorded for this SOS beacon.
+    </div>
+
+    <div *ngIf="!loadingTimeline && selectedTimeline.length > 0" class="timeline-container ps-3 py-2">
+      <div *ngFor="let item of selectedTimeline" class="timeline-item position-relative mb-3 ps-4">
+        <div class="timeline-dot bg-info"></div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-bold text-light">
+            {{ item.oldStatus ? item.oldStatus + ' → ' : 'Initial Submission: ' }}
+            <span class="text-info">{{ item.newStatus }}</span>
+          </span>
+          <span class="text-muted small">{{ item.changedAt | date: 'medium' }}</span>
+        </div>
+        <div class="text-muted small">Action by: <strong>{{ item.changedBy }}</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
