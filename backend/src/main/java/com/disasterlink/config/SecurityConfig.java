@@ -20,26 +20,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Spring Security configuration for the stateless, JWT-based REST API.
- *
- * Access rules:
- *   /api/auth/**            → public (register / login)
- *   /ws/**                  → public (WebSocket handshake does not carry JWT)
- *   /actuator/health        → public (Docker health checks)
- *   /api/officer/**         → OFFICER only
- *   /api/volunteer/**       → VOLUNTEER only
- *   /api/victim/**          → VICTIM only
- *   /api/sos  (POST)        → VICTIM, VOLUNTEER, OFFICER
- *   /api/sos  (GET)         → VOLUNTEER, OFFICER
- *   /api/sos/my             → VICTIM
- *   /api/sos/assigned       → VOLUNTEER, OFFICER
- *   /api/sos/{id}/assign    → OFFICER only
- *   /api/sos/{id}/reassign  → OFFICER only
- *   /api/volunteers         → OFFICER only
- *   /api/dashboard/**       → VOLUNTEER, OFFICER
- *   everything else         → authenticated
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
