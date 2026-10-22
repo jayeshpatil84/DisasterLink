@@ -9,9 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Exposes the public registration and login endpoints.
- */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
